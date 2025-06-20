@@ -4,15 +4,16 @@ const contactsSchema = new Schema(
   {
     name: {
       type: String,
-      required: true,
+      require: true,
     },
+
     phoneNumber: {
       type: String,
-      required: true,
+      require: true,
     },
     email: {
       type: String,
-      required: false,
+      require: false,
     },
     isFavourite: {
       type: Boolean,
