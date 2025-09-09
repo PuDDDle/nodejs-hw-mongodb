@@ -110,6 +110,12 @@ export const requestResetToken = async (email) => {
     },
   );
 
+  const appDomain = getEnvVar('APP_DOMAIN');
+  console.log('APP_DOMAIN:', appDomain); // Лог значення APP_DOMAIN
+
+  const resetLink = `${appDomain}/reset-password?token=${resetToken}`;
+  console.log('Reset password link:', resetLink); // Лог сформованого лінка
+
   const resetPasswordTemplatePath = path.join(
     TEMPLATES_DIR,
     'reset-password-email.html',
@@ -122,7 +128,7 @@ export const requestResetToken = async (email) => {
   const template = handlebars.compile(templateSource);
   const html = template({
     name: user.name,
-    link: `${getEnvVar('APP_DOMAIN')}/reset-password?token=${resetToken}`,
+    link: resetLink,
   });
 
   await sendEmail({
