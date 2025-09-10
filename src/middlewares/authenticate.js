@@ -23,10 +23,14 @@ export const authenticate = async (req, res, next) => {
     return next(createHttpError(401, 'Session not found'));
   }
 
-  const isAccessTokenExpired =
-    new Date() > new Date(session.accessTokenValidUntil);
+  const now = new Date();
+  const tokenExpiry = new Date(session.accessTokenValidUntil);
 
-  if (isAccessTokenExpired) {
+  console.log('Current server time:', now.toISOString());
+  console.log('Token expiry time:', tokenExpiry.toISOString());
+
+  if (now > tokenExpiry) {
+    console.log('Access token is expired');
     return next(createHttpError(401, 'Access token expired'));
   }
 
