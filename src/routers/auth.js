@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { refreshTokenController } from '../controllers/auth.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import {
   loginUserSchema,
@@ -10,7 +11,6 @@ import {
 import {
   loginUserController,
   logoutUserController,
-  refreshUserSessionController,
   registerUserController,
   requestResetEmailController,
   resetPasswordController,
@@ -18,6 +18,8 @@ import {
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
 
 const router = Router();
+
+router.post('/refresh', refreshTokenController);
 
 router.post(
   '/register',
@@ -33,8 +35,6 @@ router.post(
 );
 
 router.post('/logout', ctrlWrapper(logoutUserController));
-
-router.post('/refresh', ctrlWrapper(refreshUserSessionController));
 
 router.post(
   '/send-reset-email',

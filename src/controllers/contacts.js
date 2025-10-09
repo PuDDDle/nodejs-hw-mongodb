@@ -27,11 +27,15 @@ export const getContactsController = async (req, res, next) => {
       userId: req.user._id,
     });
 
-    if (!contacts) {
-      throw createHttpError(404, 'Contact not found');
+    console.log('User ID:', req.user._id);
+    console.log('Filter:', filter);
+    console.log('Contacts found:', contacts?.data?.length ?? 0);
+
+    if (!contacts || !contacts.data || contacts.data.length === 0) {
+      throw createHttpError(404, 'No contacts found');
     }
 
-    res.json({
+    res.status(200).json({
       status: 200,
       message: 'Successfully found contacts!',
       data: contacts,
@@ -50,7 +54,7 @@ export const getContactByIdController = async (req, res, next) => {
       throw createHttpError(404, 'Contact not found');
     }
 
-    res.json({
+    res.status(200).json({
       status: 200,
       message: `Successfully found contact with id ${contactId}!`,
       data: contact,
@@ -70,7 +74,11 @@ export const createContactController = async (req, res, next) => {
     };
 
     const photo = req.file;
-    const photoUrl = await processPhotoUpload(photo);
+    let photoUrl = null;
+
+    if (photo) {
+      photoUrl = await processPhotoUpload(photo);
+    }
 
     const contact = await createContact({
       ...normalizedData,
@@ -93,7 +101,10 @@ export const patchContactController = async (req, res, next) => {
     const { contactId } = req.params;
 
     const photo = req.file;
-    const photoUrl = await processPhotoUpload(photo);
+    let photoUrl = null;
+    if (photo) {
+      photoUrl = await processPhotoUpload(photo);
+    }
 
     const payload = { ...req.body };
     if (payload.contactType) {
