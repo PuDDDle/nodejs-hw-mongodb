@@ -7,7 +7,53 @@ import {
   requestResetToken,
   resetPassword,
 } from '../services/auth.js';
+import createHttpError from 'http-errors';
+import { SessionsCollection } from '../db/models/session.js';
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from '../utils/tokenUtils.js';
+export const refreshTokenController = async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
 
+    if (!refreshToken) {
+      throw createHttpError(400, 'Refresh token is required');
+    }
+
+    const session = await SessionsCollection.findOne({ refreshToken });
+
+    if (!session) {
+      throw createHttpError(401, 'Invalid refresh token');
+    }
+
+    const now = new Date();
+    const refreshTokenExpiry = new Date(session.refreshTokenValidUntil);
+
+    if (now > refreshTokenExpiry) {
+      throw createHttpError(401, 'Refresh token expired');
+    }
+
+    const newAccessToken = generateAccessToken(session.userId);
+    const newRefreshToken = generateRefreshToken(session.userId);
+
+    session.accessToken = newAccessToken;
+    session.refreshToken = newRefreshToken;
+    session.accessTokenValidUntil = new Date(Date.now() + 15 * 60 * 1000); // 15 хв
+    session.refreshTokenValidUntil = new Date(
+      Date.now() + 7 * 24 * 60 * 60 * 1000,
+    ); // 7 днів
+
+    await session.save();
+
+    res.status(200).json({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 const setupSession = (res, session) => {
   res.cookie('refreshToken', session.refreshToken, {
     httpOnly: true,

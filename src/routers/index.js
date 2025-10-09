@@ -4,7 +4,7 @@ import authRouter from './auth.js';
 
 const router = Router();
 
-router.use('/contacts', contactRouter);
-router.use('/auth', authRouter);
+router.use('/api/contacts', contactRouter);
+router.use('/api/auth', authRouter);
 
 export default router;

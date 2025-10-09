@@ -138,29 +138,34 @@ export const requestResetToken = async (email) => {
     html,
   });
 };
-export const resetPassword = async (payload) => {
-  let entries;
+export const resetPassword = async ({ token, password }) => {
+  let payload;
 
   try {
-    entries = jwt.verify(payload.token, getEnvVar('JWT_SECRET'));
-  } catch (err) {
-    if (err instanceof Error) throw createHttpError(401, err.message);
-    throw err;
+    payload = jwt.verify(token, getEnvVar('JWT_SECRET')); // Перевіряємо токен
+  } catch {
+    throw createHttpError(401, 'Token is expired or invalid.');
   }
 
+  const { email, sub: userId } = payload;
+
   const user = await UsersCollection.findOne({
-    email: entries.email,
-    _id: entries.sub,
+    email,
+    _id: userId,
   });
 
   if (!user) {
-    throw createHttpError(404, 'User not found');
+    throw createHttpError(404, 'User not found!');
   }
 
-  const encryptedPassword = await bcrypt.hash(payload.password, 10);
+  // Хешуємо новий пароль
+  const hashedPassword = await bcrypt.hash(password, 10);
+  user.password = hashedPassword;
+  await user.save();
 
-  await UsersCollection.updateOne(
-    { _id: user._id },
-    { password: encryptedPassword },
-  );
+  // Видаляємо всі сесії користувача
+  await SessionsCollection.deleteMany({ userId });
+
+  // Успіх
+  return;
 };
