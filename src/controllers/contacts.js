@@ -9,7 +9,7 @@ import {
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 import { parseSortParams } from '../utils/parseSortParams.js';
 import { parseFilterParams } from '../utils/parseFilterParams.js';
-import { processPhotoUpload } from '../utils/processPhotoUpload.js';
+import { saveFileToCloudinary as processPhotoUpload } from '../utils/saveFileToCloudinary.js';
 import { createContactSchema } from '../validation/contacts.js';
 
 export const getContactsController = async (req, res, next) => {
@@ -66,6 +66,10 @@ export const getContactByIdController = async (req, res, next) => {
 
 export const createContactController = async (req, res, next) => {
   try {
+    if (!req.file) {
+      return res.status(400).json({ error: "Фото обов'язкове" });
+    }
+
     const validatedData = await createContactSchema.validateAsync(req.body);
 
     const normalizedData = {
@@ -73,12 +77,7 @@ export const createContactController = async (req, res, next) => {
       contactType: validatedData.contactType.toLowerCase(),
     };
 
-    const photo = req.file;
-    let photoUrl = null;
-
-    if (photo) {
-      photoUrl = await processPhotoUpload(photo);
-    }
+    const photoUrl = await processPhotoUpload(req.file);
 
     const contact = await createContact({
       ...normalizedData,
