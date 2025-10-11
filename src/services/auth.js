@@ -43,9 +43,16 @@ export const registerUser = async (payload) => {
 export const loginUser = async (payload) => {
   const user = await UsersCollection.findOne({ email: payload.email });
   if (!user) {
+    console.log('User not found');
     throw createHttpError(401, 'User not found');
   }
+  console.log('User found:', user.email);
+  console.log('Received password:', payload.password);
+  console.log('Password hash in DB:', user.password);
+
   const isEqual = await bcrypt.compare(payload.password, user.password);
+  console.log('Password match:', isEqual);
+
   if (!isEqual) {
     throw createHttpError(401, 'Unauthorized');
   }
@@ -111,10 +118,10 @@ export const requestResetToken = async (email) => {
   );
 
   const appDomain = getEnvVar('APP_DOMAIN');
-  console.log('APP_DOMAIN:', appDomain); // Лог значення APP_DOMAIN
+  console.log('APP_DOMAIN:', appDomain);
 
   const resetLink = `${appDomain}/reset-password?token=${resetToken}`;
-  console.log('Reset password link:', resetLink); // Лог сформованого лінка
+  console.log('Reset password link:', resetLink);
 
   const resetPasswordTemplatePath = path.join(
     TEMPLATES_DIR,
@@ -142,7 +149,7 @@ export const resetPassword = async ({ token, password }) => {
   let payload;
 
   try {
-    payload = jwt.verify(token, getEnvVar('JWT_SECRET')); // Перевіряємо токен
+    payload = jwt.verify(token, getEnvVar('JWT_SECRET'));
   } catch {
     throw createHttpError(401, 'Token is expired or invalid.');
   }
@@ -158,14 +165,11 @@ export const resetPassword = async ({ token, password }) => {
     throw createHttpError(404, 'User not found!');
   }
 
-  // Хешуємо новий пароль
   const hashedPassword = await bcrypt.hash(password, 10);
   user.password = hashedPassword;
   await user.save();
 
-  // Видаляємо всі сесії користувача
   await SessionsCollection.deleteMany({ userId });
 
-  // Успіх
   return;
 };
