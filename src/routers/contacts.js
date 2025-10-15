@@ -35,7 +35,18 @@ router.patch(
   '/:contactId',
   isValidId,
   upload.single('photo'),
-  validateBody(updateContactSchema),
+  ctrlWrapper(async (req, res, next) => {
+    try {
+      if (Object.keys(req.body).length) {
+        await updateContactSchema.validateAsync(req.body, {
+          abortEarly: false,
+        });
+      }
+      next();
+    } catch (err) {
+      next(err);
+    }
+  }),
   ctrlWrapper(patchContactController),
 );
 

@@ -1,6 +1,6 @@
 import Joi from 'joi';
 
-const CONTACT_TYPES = ['personal', 'home', 'work', 'Primary', 'secondary'];
+const CONTACT_TYPES = ['personal', 'home', 'work'];
 
 export const createContactSchema = Joi.object({
   name: Joi.string().min(3).max(20).required(),
