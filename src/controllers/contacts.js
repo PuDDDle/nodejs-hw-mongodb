@@ -99,17 +99,14 @@ export const patchContactController = async (req, res, next) => {
   try {
     const { contactId } = req.params;
 
-    const photo = req.file;
-    let photoUrl = null;
-    if (photo) {
-      photoUrl = await processPhotoUpload(photo);
-    }
-
     const payload = { ...req.body };
+
     if (payload.contactType) {
       payload.contactType = payload.contactType.toLowerCase();
     }
-    if (photoUrl) {
+
+    if (req.file) {
+      const photoUrl = await processPhotoUpload(req.file);
       payload.photo = photoUrl;
     }
 
