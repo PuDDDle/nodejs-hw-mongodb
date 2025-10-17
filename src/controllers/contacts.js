@@ -37,7 +37,9 @@ export const getContactsController = async (req, res, next) => {
 
     res.status(200).json({
       status: 200,
-      message: 'Successfully found contacts!',
+      message: contacts?.data?.length
+        ? 'Successfully found contacts!'
+        : 'No contacts found (empty list)',
       data: contacts,
     });
   } catch (error) {
@@ -66,8 +68,10 @@ export const getContactByIdController = async (req, res, next) => {
 
 export const createContactController = async (req, res, next) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "Фото обов'язкове" });
+    let photoUrl = null;
+
+    if (req.file) {
+      photoUrl = await processPhotoUpload(req.file);
     }
 
     const validatedData = await createContactSchema.validateAsync(req.body);
@@ -76,8 +80,6 @@ export const createContactController = async (req, res, next) => {
       ...validatedData,
       contactType: validatedData.contactType.toLowerCase(),
     };
-
-    const photoUrl = await processPhotoUpload(req.file);
 
     const contact = await createContact({
       ...normalizedData,

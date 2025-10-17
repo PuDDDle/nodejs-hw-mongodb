@@ -9,7 +9,8 @@ const contactsSchema = new Schema(
 
     phoneNumber: {
       type: String,
-      require: true,
+      required: true,
+      match: /^\d{10,13}$/,
     },
     email: {
       type: String,
