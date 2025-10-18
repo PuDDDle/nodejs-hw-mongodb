@@ -31,10 +31,6 @@ export const getContactsController = async (req, res, next) => {
     console.log('Filter:', filter);
     console.log('Contacts found:', contacts?.data?.length ?? 0);
 
-    if (!contacts || !contacts.data || contacts.data.length === 0) {
-      throw createHttpError(404, 'No contacts found');
-    }
-
     res.status(200).json({
       status: 200,
       message: contacts?.data?.length
