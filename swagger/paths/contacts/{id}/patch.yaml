@@ -1,0 +1,43 @@
+patch:
+  tags:
+    - Contacts
+  summary: Оновити контакт за ID
+  operationId: updateContact
+  description: Оновлює дані контакту за його ідентифікатором.
+  security:
+    - bearerAuth: []
+  parameters:
+    - name: contactId
+      in: path
+      required: true
+      description: ID контакту
+      schema:
+        type: string
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            name:
+              type: string
+            email:
+              type: string
+            phoneNumber:
+              type: string
+            isFavourite:
+              type: boolean
+            contactType:
+              type: string
+              enum: [personal, work, other]
+            photo:
+              type: string
+              format: binary
+  responses:
+    '200':
+      description: Контакт оновлено
+    '400':
+      description: Помилка валідації
+    '404':
+      description: Контакт не знайдено
