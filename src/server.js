@@ -7,6 +7,15 @@ import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
 import cookieParser from 'cookie-parser';
 import { UPLOAD_DIR } from './constants/index.js';
+import swaggerUi from 'swagger-ui-express';
+import YAML from 'yamljs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const swaggerPath = path.join(__dirname, '../docs/openapi.yaml');
+const swaggerDocument = YAML.load(swaggerPath);
 
 const PORT = Number(getEnvVar('PORT', 3000));
 
@@ -26,6 +35,7 @@ export function setupServer() {
       },
     }),
   );
+
   app.use('/uploads', express.static(UPLOAD_DIR));
 
   app.get('/', (req, res) => {
@@ -36,8 +46,9 @@ export function setupServer() {
 
   app.use(router);
 
-  app.use(notFoundHandler);
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
+  app.use(notFoundHandler);
   app.use(errorHandler);
 
   app.listen(PORT, () => {
