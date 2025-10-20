@@ -2,35 +2,252 @@ openapi: 3.1.0
 info:
   version: 1.0.0
   title: Contacts API
+  description: >
+    API для роботи з контактами (створення, редагування, видалення, пошук).
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-  description: >
-    API для роботи з контактами (створення, редагування, видалення, пошук)
+
 tags:
   - name: Contacts
     description: Операції з контактами
-  - name: Auth
-    description: Авторизація користувачів
+
 servers:
-  - url: https://nodejs-hw-mongodb-4-q6fg.onrender.com
+  - url: https://nodejs-hw-mongodb-5-bdth.onrender.com
 
 paths:
   /contacts:
     get:
-      $ref: ../swagger/paths/contacts/get.yaml
+      summary: Отримати список контактів
+      description: >
+        Повертає список контактів користувача з можливістю пагінації, сортування та фільтрації.
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+          description: Номер сторінки
+        - in: query
+          name: perPage
+          schema:
+            type: integer
+            default: 10
+          description: Кількість контактів на сторінку
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [name, email, phoneNumber, createdAt]
+          description: Поле для сортування
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Напрям сортування
+        - in: query
+          name: isFavourite
+          schema:
+            type: boolean
+          description: Фільтр за улюбленими контактами
+      responses:
+        '200':
+          description: Успішне отримання списку контактів
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Contact'
+        '401':
+          description: Неавторизований користувач
+      operationId: getContacts
+
     post:
-      $ref: ../swagger/paths/contacts/post.yaml
+      summary: Створити новий контакт
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, phoneNumber, email]
+              properties:
+                name:
+                  type: string
+                phoneNumber:
+                  type: string
+                  example: '380931112233'
+                email:
+                  type: string
+                  format: email
+                isFavourite:
+                  type: boolean
+                contactType:
+                  type: string
+                  enum: [work, home, personal]
+      responses:
+        '201':
+          description: Контакт створено успішно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          description: Помилка валідації
+        '401':
+          description: Неавторизований користувач
+      operationId: createContact
+
   /contacts/{contactId}:
     get:
-      $ref: ../swagger/paths/contacts/{id}/get.yaml
+      summary: Отримати контакт за ID
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: contactId
+          required: true
+          schema:
+            type: string
+          description: ID контакту
+      responses:
+        '200':
+          description: Успішне отримання контакту
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '401':
+          description: Неавторизований користувач
+        '404':
+          description: Контакт не знайдено
+      operationId: getContactById
+
     patch:
-      $ref: ../swagger/paths/contacts/{id}/patch.yaml
+      summary: Оновити контакт за ID
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: contactId
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phoneNumber:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                isFavourite:
+                  type: boolean
+                contactType:
+                  type: string
+                  enum: [work, home, personal]
+      responses:
+        '200':
+          description: Контакт оновлено успішно
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Contact'
+        '400':
+          description: Помилка валідації
+        '401':
+          description: Неавторизований користувач
+        '404':
+          description: Контакт не знайдено
+      operationId: updateContactById
+
     delete:
-      $ref: ../swagger/paths/contacts/{id}/delete.yaml
+      summary: Видалити контакт за ID
+      tags:
+        - Contacts
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: contactId
+          required: true
+          schema:
+            type: string
+          description: ID контакту
+      responses:
+        '200':
+          description: Контакт видалено успішно
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  message:
+                    type: string
+        '401':
+          description: Неавторизований користувач
+        '404':
+          description: Контакт не знайдено
+      operationId: deleteContactById
 
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Contact:
+      type: object
+      properties:
+        _id:
+          type: string
+          description: Унікальний ID контакту
+        name:
+          type: string
+        phoneNumber:
+          type: string
+        email:
+          type: string
+          format: email
+        isFavourite:
+          type: boolean
+        contactType:
+          type: string
+          enum: [work, home, personal]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time

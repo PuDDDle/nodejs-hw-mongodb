@@ -1,0 +1,56 @@
+summary: Отримати список контактів
+description: >
+  Повертає список контактів користувача з можливістю пагінації, сортування та фільтрації.
+tags:
+  - Contacts
+security:
+  - bearerAuth: []
+parameters:
+  - in: query
+    name: page
+    schema:
+      type: integer
+      default: 1
+    description: Номер сторінки
+  - in: query
+    name: perPage
+    schema:
+      type: integer
+      default: 10
+    description: Кількість контактів на сторінку
+  - in: query
+    name: sortBy
+    schema:
+      type: string
+      enum: [name, email, phoneNumber, createdAt]
+    description: Поле для сортування
+  - in: query
+    name: sortOrder
+    schema:
+      type: string
+      enum: [asc, desc]
+    description: Напрям сортування
+  - in: query
+    name: isFavourite
+    schema:
+      type: boolean
+    description: Фільтр за улюбленими контактами
+responses:
+  '200':
+    description: Успішне отримання списку контактів
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            status:
+              type: string
+            message:
+              type: string
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Contact'
+  '401':
+    description: Неавторизований користувач
+operationId: getContacts

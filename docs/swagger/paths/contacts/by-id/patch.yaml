@@ -1,0 +1,38 @@
+summary: Оновити контакт за ID
+tags:
+  - Contacts
+security:
+  - bearerAuth: []
+parameters:
+  - in: path
+    name: contactId
+    required: true
+    schema:
+      type: string
+requestBody:
+  required: true
+  content:
+    application/json:
+      schema:
+        type: object
+        properties:
+          name:
+            type: string
+          phoneNumber:
+            type: string
+          email:
+            type: string
+            format: email
+          isFavourite:
+            type: boolean
+          contactType:
+            type: string
+            enum: [work, home, personal]
+responses:
+  '200':
+    description: Контакт оновлено успішно
+  '400':
+    description: Помилка валідації
+  '404':
+    description: Контакт не знайдено
+operationId: updateContactById
