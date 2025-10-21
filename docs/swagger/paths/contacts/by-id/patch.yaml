@@ -9,25 +9,35 @@ parameters:
     required: true
     schema:
       type: string
+      example: '67163c0cf74d1e76a6f02f44'
 requestBody:
   required: true
   content:
-    application/json:
+    multipart/form-data:
       schema:
         type: object
         properties:
           name:
             type: string
+            example: 'Updated Name'
           phoneNumber:
             type: string
+            example: '380971234567'
           email:
             type: string
             format: email
+            example: 'updated@example.com'
           isFavourite:
             type: boolean
+            example: true
           contactType:
             type: string
             enum: [work, home, personal]
+            example: 'personal'
+          photo:
+            type: string
+            format: binary
+            description: Нове фото контакту
 responses:
   '200':
     description: Контакт оновлено успішно

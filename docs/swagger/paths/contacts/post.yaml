@@ -6,24 +6,35 @@ security:
 requestBody:
   required: true
   content:
-    application/json:
+    multipart/form-data:
       schema:
         type: object
-        required: [name, phoneNumber, email]
+        required:
+          - name
+          - phoneNumber
+          - email
         properties:
           name:
             type: string
+            example: 'John Doe'
           phoneNumber:
             type: string
             example: '380931112233'
           email:
             type: string
             format: email
+            example: 'john@example.com'
           isFavourite:
             type: boolean
+            example: false
           contactType:
             type: string
             enum: [work, home, personal]
+            example: 'work'
+          photo:
+            type: string
+            format: binary
+            description: Фото контакту
 responses:
   '201':
     description: Контакт створено успішно
