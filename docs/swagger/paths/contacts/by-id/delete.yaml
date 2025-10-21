@@ -11,8 +11,8 @@ parameters:
       type: string
     description: ID контакту
 responses:
-  '200':
-    description: Контакт видалено успішно
+  '204':
+    description: Контакт успішно видалено (без тіла відповіді)
   '404':
     description: Контакт не знайдено
 operationId: deleteContactById
