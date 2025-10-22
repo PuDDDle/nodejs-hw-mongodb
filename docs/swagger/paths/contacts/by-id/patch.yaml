@@ -48,5 +48,19 @@ patch:
             $ref: '#/components/schemas/Contact'
     '400':
       description: Помилка валідації
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     '404':
       description: Контакт не знайдено
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    '401':
+      description: Неавторизований користувач
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
