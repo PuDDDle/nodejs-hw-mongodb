@@ -84,24 +84,35 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
-              required: [name, phoneNumber, email]
+              required:
+                - name
+                - phoneNumber
+                - contactType
               properties:
                 name:
                   type: string
+                  example: 'John Doe'
                 phoneNumber:
                   type: string
                   example: '380931112233'
                 email:
                   type: string
                   format: email
+                  example: 'john@example.com'
                 isFavourite:
                   type: boolean
+                  example: false
                 contactType:
                   type: string
                   enum: [work, home, personal]
+                  example: 'work'
+                photo:
+                  type: string
+                  format: binary
+                  description: Фото контакту
       responses:
         '201':
           description: Контакт створено успішно
@@ -154,25 +165,35 @@ paths:
           required: true
           schema:
             type: string
+          description: ID контакту
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
                 name:
                   type: string
+                  example: 'Updated Name'
                 phoneNumber:
                   type: string
+                  example: '380971234567'
                 email:
                   type: string
                   format: email
+                  example: 'updated@example.com'
                 isFavourite:
                   type: boolean
+                  example: true
                 contactType:
                   type: string
                   enum: [work, home, personal]
+                  example: 'personal'
+                photo:
+                  type: string
+                  format: binary
+                  description: Нове фото контакту
       responses:
         '200':
           description: Контакт оновлено успішно
@@ -202,17 +223,8 @@ paths:
             type: string
           description: ID контакту
       responses:
-        '200':
-          description: Контакт видалено успішно
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  message:
-                    type: string
+        '204':
+          description: Контакт видалено успішно (без контенту)
         '401':
           description: Неавторизований користувач
         '404':
@@ -245,6 +257,10 @@ components:
         contactType:
           type: string
           enum: [work, home, personal]
+        photo:
+          type: string
+          format: uri
+          description: URL фото (якщо додано)
         createdAt:
           type: string
           format: date-time
